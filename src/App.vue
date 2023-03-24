@@ -21,12 +21,24 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css?family=Alexandria');
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  font-family: 'Alexandria';
+}
+
+button:is(:active,:focus),
+a:is(:active,:focus){
+  outline: none !important;
+  border: 0 !important;
+}
+input:is(:active,:focus),
+textarea:is(:active,:focus),
+select:is(:active,:focus){
+  background: #e8e8e8 !important;
+}
+:root{
+  --themeColor: #536dfe;
+  --themeBackgroundColor: #536dfe;
+  --lightBg: rgb(83 109 254 / 12%);
 }
 </style>
