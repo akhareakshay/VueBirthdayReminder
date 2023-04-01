@@ -1,13 +1,16 @@
 <template>
   <div>
     <div class="mt-4 bg-white mx-auto p-3 pt-4" style="width: 98%">
+      <div class="d-flex justify-content-between">
       <h3
         class="text-left mb-4"
         style="font-size: 1.5rem; color: var(--themeColor)"
       >
-        Create Birthday
+        {{ editBd ? "Edit Birthday" : "Create Birthday" }}
       </h3>
-      <div class="w-75 mx-auto">
+       <button type="button" class="btn px-3" style="font-size: 1rem !important;" @click="$emit('backtolist')">Back To Birthday List</button>
+      </div>
+      <div class="w-75 mx-auto mt-3">
         <form class="w-full mx-auto" v-on:submit.prevent="createBirthday()">
           <div class="d-flex" style="gap: 10px">
             <input
@@ -120,6 +123,17 @@
 import axios from "axios";
 import UserManagementService from "@/services/UserManagementService";
 export default {
+  emits: ['backtolist'],
+  props:{
+      fromList:{
+        type: Boolean,
+        default: false,
+      },
+      fromListBD_Id:{
+        type: Number,
+        default: null
+      }
+    },
   data() {
     return {
       gender: "male",
@@ -134,6 +148,8 @@ export default {
       state: "",
       pincode: "",
       country: "",
+      editBd: this.fromList,
+      idFromList: this.fromListBD_Id
     };
   },
   methods: {
@@ -157,6 +173,9 @@ export default {
         },
         userId: this.$store.state.userid,
       };
+      if(this.editBd){
+        body = {...body,birthdayId: this.idFromList}
+      }
       axios
         .post(
           UserManagementService.backend_path + "birthday/saveorupdate",
@@ -181,6 +200,32 @@ export default {
         });
     },
   },
+  mounted(){
+    if(this.editBd){
+       axios
+        .get(`${UserManagementService.backend_path}birthday/getbirthday/${this.$store.state.userid}/${this.idFromList}`)
+        .then((res)=>{
+          let data = res.data;
+          if(res.status == 200){
+            this.gender = data[0].gender
+            this.name = data[0].name
+            this.relation = data[0].relation
+            this.date = data[0].date
+            this.phonenumber = data[0].contact.contactNumber
+            this.email = data[0].contact.emailId
+            this.city = data[0].address.city
+            this.taluka = data[0].address.taluka
+            this.district = data[0].address.district
+            this.state = data[0].address.state
+            this.pincode = data[0].address.pincode
+            this.country = data[0].address.country
+          }
+        })
+        .catch((err)=>{
+          console.log(err)
+        })
+    }
+  }
 };
 </script>
 

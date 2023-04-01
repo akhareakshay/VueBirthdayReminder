@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div
+    <div v-if="showList"
       class="d-flex w-100 mt-4 flex-wrap"
       style="
         height: calc(100vh - 100px);
@@ -24,6 +24,14 @@
             box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
           "
         >
+        <div class="d-flex justify-content-end" style="gap: 2px;">
+          <button class="border-0 bg-transparent" @click="editBirthDay(user.birthdayId)">
+            <i class="fa fa-pencil" aria-hidden="true"></i>
+          </button>
+          <button class="border-0 bg-transparent" @click="deleteBirthday(user.birthdayId,index)">
+            <i class="fa fa-trash" aria-hidden="true"></i>
+          </button>
+        </div>
           <h5 class="card-title" style="color: var(--themeColor)">
             {{ user.name }}
           </h5>
@@ -59,18 +67,25 @@
         </div>
       </div>
     </div>
+    <CreateBirthday :fromList="true" :fromListBD_Id="edit_birthdayId" @backtolist="backtolist" v-if="!showList"/>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import UserManagementService from "../../services/UserManagementService"
+import CreateBirthday from '../CreateBirthdays/CreateBirthday.vue';
 export default {
   data() {
     return {
-      users: [],
+      users:[],
       showpopup: false,
+      showList: true,
+      edit_birthdayId: null,
     };
+  },
+  components:{
+    CreateBirthday 
   },
   methods: {
     getAllUsers() {
@@ -94,6 +109,41 @@ export default {
       localStorage.clear();
       this.$router.push("/");
     },
+    editBirthDay(Id){
+      this.edit_birthdayId = Id
+      this.showList = false;
+    },
+    async saveEditedBirthDay(id){
+      try{
+        let body = {
+
+          birthdayId: id
+        }
+        let res = await axios.post(UserManagementService.backend_path + "birthday/saveorupdate",body)
+        console.log(res.data);
+        if(res.status == 200){
+          this.getAllUsers()
+        }
+      }
+      catch(err){
+        console.log(err)
+      }
+    },
+    async deleteBirthday(id,index){
+      try{
+        let res = await axios.post(UserManagementService.backend_path + "birthday/delete",{userId: this.$store.state.userid, birthdayId: id})
+        console.log(res.data);
+        if(res.status == 200){
+          this.users.splice(index,1);
+        }
+      }
+      catch(err){
+        console.log(err)
+      }
+    },
+    backtolist(){
+      this.showList = true;
+    }
   },
   mounted() {
     this.getAllUsers();
@@ -102,4 +152,7 @@ export default {
 </script>
 
 <style scoped>
+button{
+  cursor: pointer;
+}
 </style>
